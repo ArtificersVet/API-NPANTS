@@ -2,7 +2,7 @@
 import { Sequelize } from 'sequelize';
 
 // Create a Sequelize instance
-const sequelize = new Sequelize('dboNPANTS2', 'root', '12345678', {
+const sequelize = new Sequelize('dboNPANTS5', 'root', '12345678', {
     host: '127.0.0.1',
     dialect: 'mysql',
     logging: false // Disable logging for a cleaner output
