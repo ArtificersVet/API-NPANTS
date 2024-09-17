@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js'; // Ajusta la ruta si es necesario
 import Rol from './rol.js'; // Ajusta la ruta si es necesario
+import bcrypt from 'bcrypt';
 
 const Usuario = sequelize.define('Usuario', {
   id: {
@@ -31,7 +32,19 @@ const Usuario = sequelize.define('Usuario', {
   }
 }, {
   tableName: 'usuarios',
-  timestamps: false
+  timestamps: false,
+  hooks: {
+    beforeCreate: async (usuario) => {
+      const salt = await bcrypt.genSalt(10);
+      usuario.password = await bcrypt.hash(usuario.password, salt);
+    },
+    beforeUpdate: async (usuario) => {
+      if (usuario.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        usuario.password = await bcrypt.hash(usuario.password, salt);
+      }
+    }
+  }
 });
 
 // Define la asociación entre Usuario y Rol
