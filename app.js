@@ -1,6 +1,6 @@
 import express from 'express';
-import router from './src/routes/rolRouter.js'; // adjust the path if necessary
-import usuario from './src/routes/usuarioRouter.js'; // adjust the path if necessary
+import router from './src/routes/rolRouter.js'; // ES module import
+import usuario from './src/routes/usuarioRouter.js'; // ES module import
 
 const app = express();
 

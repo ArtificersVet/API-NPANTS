@@ -1,13 +1,18 @@
-import { Router } from "express";
-import { UsuarioCreate,UsuarioGetAll,UsuarioGetById,UsuarioUpdate,UsuarioDelete} from "../controllers/usuarioController.js";
+import express from 'express';
+import {
+    UsuarioGetAll,
+    UsuarioCreate,
+    UsuarioGetById,
+    UsuarioUpdate,
+    UsuarioDelete
+} from '../controllers/usuarioController.js';
 
-const router = Router();
+const router = express.Router();
 
-// Endpoints para usuario
-router.get('/usuario', UsuarioGetAll);
-router.post('/usuario/create', UsuarioCreate);
-router.get('/usuario/:id', UsuarioGetById);
-router.put('/usuario/:id', UsuarioUpdate);
-router.delete('/usuario/:id', UsuarioDelete);
+router.get('/usuarios', UsuarioGetAll);
+router.post('/usuarios/create', UsuarioCreate);
+router.get('/usuarios/:id', UsuarioGetById);
+router.put('/usuarios/:id', UsuarioUpdate);
+router.delete('/usuarios/:id', UsuarioDelete);
 
 export default router;

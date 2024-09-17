@@ -1,10 +1,13 @@
-import { pool } from "../config/database.js";
+import Usuario from '../models/usuario.js'; // Ajusta la ruta si es necesario
+import Rol from '../models/rol.js'; // Ajusta la ruta si es necesario
 
 // Obtener todos los usuarios
 export const UsuarioGetAll = async (req, res) => {
     try {
-        const [usuarios] = await pool.query('SELECT usuarios.*, roles.nombre AS rol FROM usuarios LEFT JOIN roles ON usuarios.rol_id = roles.id');
-        if (usuarios.length == 0) {
+        const usuarios = await Usuario.findAll({
+            include: [{ model: Rol, as: 'rol' }] // Incluye la información del rol
+        });
+        if (usuarios.length === 0) {
             res.status(404).send('No hay ningún usuario');
         } else {
             res.json(usuarios);
@@ -17,18 +20,9 @@ export const UsuarioGetAll = async (req, res) => {
 
 // Crear un nuevo usuario
 export const UsuarioCreate = async (req, res) => {
-    const { nombre, email, password, rol_id } = req.body;
     try {
-        const [result] = await pool.query(
-            'INSERT INTO usuarios (nombre, email, password, rol_id) VALUES (?, ?, ?, ?)',
-            [nombre, email, password, rol_id]
-        );
-
-        if (result.affectedRows == 0) {
-            res.status(400).send('No se pudo crear el usuario');
-        } else {
-            res.status(201).json({ id: result.insertId, nombre, email, rol_id });
-        }
+        const usuario = await Usuario.create(req.body);
+        res.status(201).json(usuario);
     } catch (error) {
         res.status(500).send('Error en el servidor');
         console.error(error);
@@ -39,15 +33,13 @@ export const UsuarioCreate = async (req, res) => {
 export const UsuarioGetById = async (req, res) => {
     const { id } = req.params;
     try {
-        const [usuario] = await pool.query(
-            'SELECT usuarios.*, roles.nombre AS rol FROM usuarios LEFT JOIN roles ON usuarios.rol_id = roles.id WHERE usuarios.id = ?',
-            [id]
-        );
-
-        if (usuario.length == 0) {
+        const usuario = await Usuario.findByPk(id, {
+            include: [{ model: Rol, as: 'rol' }] // Incluye la información del rol
+        });
+        if (!usuario) {
             res.status(404).send('No se encontró el usuario');
         } else {
-            res.json(usuario[0]);
+            res.json(usuario);
         }
     } catch (error) {
         res.status(500).send('Error en el servidor');
@@ -58,15 +50,12 @@ export const UsuarioGetById = async (req, res) => {
 // Actualizar un usuario por su ID
 export const UsuarioUpdate = async (req, res) => {
     const { id } = req.params;
-    const { nombre, email, password, rol_id } = req.body;
-
     try {
-        const [result] = await pool.query(
-            'UPDATE usuarios SET nombre = ?, email = ?, password = ?, rol_id = ? WHERE id = ?',
-            [nombre, email, password, rol_id, id]
-        );
+        const [affectedRows] = await Usuario.update(req.body, {
+            where: { id }
+        });
 
-        if (result.affectedRows == 0) {
+        if (affectedRows === 0) {
             res.status(404).send('No se encontró el usuario o no se hicieron cambios');
         } else {
             res.status(200).send(`Usuario con ID ${id} actualizado correctamente`);
@@ -81,9 +70,11 @@ export const UsuarioUpdate = async (req, res) => {
 export const UsuarioDelete = async (req, res) => {
     const { id } = req.params;
     try {
-        const [result] = await pool.query('DELETE FROM usuarios WHERE id = ?', [id]);
+        const affectedRows = await Usuario.destroy({
+            where: { id }
+        });
 
-        if (result.affectedRows == 0) {
+        if (affectedRows === 0) {
             res.status(404).send('No se encontró el usuario');
         } else {
             res.status(200).send(`Usuario con ID ${id} eliminado correctamente`);

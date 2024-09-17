@@ -1,10 +1,10 @@
-import { pool } from "../config/database.js";
+import Rol from '../models/rol.js'; // Adjust the path if necessary
 
 // Obtener todos los roles
 export const RolGetAll = async (req, res) => {
     try {
-        const [roles] = await pool.query('SELECT * FROM roles');
-        if (roles.length == 0) {
+        const roles = await Rol.findAll();
+        if (roles.length === 0) {
             res.status(404).send('No hay ningún rol');
         } else {
             res.json(roles);
@@ -17,18 +17,9 @@ export const RolGetAll = async (req, res) => {
 
 // Crear un nuevo rol
 export const RolCreate = async (req, res) => {
-    const { nombre, descripcion } = req.body;
     try {
-        const [result] = await pool.query(
-            'INSERT INTO roles (nombre, descripcion) VALUES (?, ?)',
-            [nombre, descripcion]
-        );
-
-        if (result.affectedRows == 0) {
-            res.status(400).send('No se pudo crear el rol');
-        } else {
-            res.status(201).json({ id: result.insertId, nombre, descripcion });
-        }
+        const rol = await Rol.create(req.body);
+        res.status(201).json(rol);
     } catch (error) {
         res.status(500).send('Error en el servidor');
         console.error(error);
@@ -39,12 +30,11 @@ export const RolCreate = async (req, res) => {
 export const RolGetById = async (req, res) => {
     const { id } = req.params;
     try {
-        const [rol] = await pool.query('SELECT * FROM roles WHERE id = ?', [id]);
-
-        if (rol.length == 0) {
+        const rol = await Rol.findByPk(id);
+        if (!rol) {
             res.status(404).send('No se encontró el rol');
         } else {
-            res.json(rol[0]);
+            res.json(rol);
         }
     } catch (error) {
         res.status(500).send('Error en el servidor');
@@ -55,15 +45,12 @@ export const RolGetById = async (req, res) => {
 // Actualizar un rol por su ID
 export const RolUpdate = async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion } = req.body;
-
     try {
-        const [result] = await pool.query(
-            'UPDATE roles SET nombre = ?, descripcion = ? WHERE id = ?',
-            [nombre, descripcion, id]
-        );
+        const [affectedRows] = await Rol.update(req.body, {
+            where: { id }
+        });
 
-        if (result.affectedRows == 0) {
+        if (affectedRows === 0) {
             res.status(404).send('No se encontró el rol o no se hicieron cambios');
         } else {
             res.status(200).send(`Rol con ID ${id} actualizado correctamente`);
@@ -74,14 +61,15 @@ export const RolUpdate = async (req, res) => {
     }
 };
 
-
 // Eliminar un rol por su ID
 export const RolDelete = async (req, res) => {
     const { id } = req.params;
     try {
-        const [result] = await pool.query('DELETE FROM roles WHERE id = ?', [id]);
+        const affectedRows = await Rol.destroy({
+            where: { id }
+        });
 
-        if (result.affectedRows == 0) {
+        if (affectedRows === 0) {
             res.status(404).send('No se encontró el rol');
         } else {
             res.status(200).send(`Rol con ID ${id} eliminado correctamente`);
