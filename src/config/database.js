@@ -2,10 +2,11 @@
 import { Sequelize } from 'sequelize';
 
 // Create a Sequelize instance
-const sequelize = new Sequelize('dboNPANTS7', 'root', '12345678', {
-    host: '127.0.0.1',
+const sequelize = new Sequelize('railway', 'root', 'wlHseHzAADtPlnKBWecHIWoysqsJoVJK', {
+    host: 'autorack.proxy.rlwy.net',
     dialect: 'mysql',
-    logging: false // Disable logging for a cleaner output
+    logging: false, // Disable logging for a cleaner output
+    port: 21008
 });
 
 // Test the connection
@@ -17,3 +18,4 @@ try {
 }
 
 export default sequelize;
+ 
