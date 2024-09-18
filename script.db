@@ -17,3 +17,26 @@ FOREIGN KEY (rol_id) REFERENCES roles(id)
 );
 
 insert into roles (nombre,descripcion) values ('Admin','Admin');
+
+CREATE TABLE tipo_cliente (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    descripcion VARCHAR(255),
+    nombre VARCHAR(255)
+)
+
+CREATE Table cliente (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    direccion VARCHAR(255),
+    email VARCHAR(255),
+    nombre VARCHAR(255),
+    telefono VARCHAR(255),
+    tipocliente_id BIGINT,
+    Foreign Key (tipocliente_id) REFERENCES tipo_cliente(id)
+)
+
+CREATE Table tela(
+    id BIGINT PRIMARY KEY,
+    color VARCHAR(255),
+    nombre VARCHAR(255),
+    stock DOUBLE
+)
