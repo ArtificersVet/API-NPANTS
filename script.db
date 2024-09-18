@@ -40,3 +40,42 @@ CREATE Table tela(
     nombre VARCHAR(255),
     stock DOUBLE
 )
+
+CREATE Table talla(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255)
+)
+
+CREATE Table metodo_pago(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255)
+)
+
+CREATE Table estado_pedido(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255)
+)
+
+CREATE Table pedido(
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    fecha_pedido DATE,
+    saldo DECIMAL(10,2),
+    tipo_pago TINYINT,
+    total DECIMAL(10,2),
+    cliente_id BIGINT,
+    estado_pedido_id BIGINT,
+    Foreign Key (cliente_id) REFERENCES cliente(id),
+    Foreign Key (estado_pedido_id) REFERENCES estado_pedido(id)
+)
+
+CREATE Table historial_pedido(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    comentario VARCHAR(255),
+    fecha DATETIME,
+    estado_pedido_id BIGINT,
+    pedido_id BIGINT,
+    usuario_id2 INT,
+    Foreign Key (estado_pedido_id) REFERENCES estado_pedido(id),
+    Foreign Key (pedido_id) REFERENCES pedido(id),
+    Foreign Key (usuario_id2) REFERENCES usuarios(id)
+) 
