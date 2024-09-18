@@ -52,7 +52,7 @@ export const TipoClienteUpdate = async (req, res) => {
         });
 
         if (affectedRows === 0) {
-            res.status(404).send('No se encontró el rol o no se hicieron cambios');
+            res.status(404).send('No se encontró el tipo cliente o no se hicieron cambios');
         } else {
             res.status(200).send(`Tipo_Cliente con ID ${id} actualizado correctamente`);
         }
