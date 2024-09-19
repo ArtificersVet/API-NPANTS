@@ -6,6 +6,7 @@ import sequelize from '../config/database.js'; // Ajusta la ruta si es necesario
 import Rol from './rol.js'; // Ajusta la ruta si es necesario
 // Importa bcrypt para la encriptación de contraseñas (comentado por ahora)
 // import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 // Define el modelo 'Usuario' utilizando Sequelize
 const Usuario = sequelize.define('Usuario', {
@@ -46,25 +47,25 @@ const Usuario = sequelize.define('Usuario', {
   // Desactiva los campos automáticos de fecha de creación y actualización
   timestamps: false,
   // Define los hooks para la encriptación de contraseñas
-  // hooks: {
   //   // Hook que se ejecuta antes de crear un nuevo usuario
-  //   beforeCreate: async (usuario) => {
-  //     // Genera un salt para la encriptación
-  //     const salt = await bcrypt.genSalt(10);
-  //     // Encripta la contraseña del usuario
-  //     usuario.password = await bcrypt.hash(usuario.password, salt);
-  //   },
+ hooks: {
+   beforeCreate: async (usuario) => {
+     // Genera un salt para la encriptación
+     const salt = await bcrypt.genSalt(10);
+     // Encripta la contraseña del usuario
+     usuario.password = await bcrypt.hash(usuario.password, salt);
+   },
   //   // Hook que se ejecuta antes de actualizar un usuario
-  //   beforeUpdate: async (usuario) => {
+   beforeUpdate: async (usuario) => {
   //     // Verifica si el campo 'password' ha cambiado
-  //     if (usuario.changed('password')) {
+      if (usuario.changed('password')) {
   //       // Genera un salt para la encriptación
-  //       const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(10);
   //       // Encripta la nueva contraseña del usuario
-  //       usuario.password = await bcrypt.hash(usuario.password, salt);
-  //     }
-  //   }
-  // }
+        usuario.password = await bcrypt.hash(usuario.password, salt);
+      }
+    }
+ }
 });
 
 // Define la relación de pertenencia entre 'Usuario' y 'Rol'

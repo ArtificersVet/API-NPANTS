@@ -5,7 +5,7 @@ const initializeDefaultUser = async () => {
   try {
     const rolId = 1; // ID del rol que quieres asociar al usuario por defecto
 
-    // Verifica si el rol con el ID específico existe
+    // Verifica si el rol con el ID específico existe  
     const rol = await Rol.findByPk(rolId);
 
     if (!rol) {
@@ -17,11 +17,11 @@ const initializeDefaultUser = async () => {
     const existingUser = await Usuario.findOne({ where: { email: 'admin@example.com' } });
 
     if (!existingUser) {
-      // Crea el usuario por defecto sin encriptar la contraseña
+      // Crea el usuario por defecto con la contraseña en texto plano
       await Usuario.create({
         nombre: 'Administrador',
         email: 'admin@example.com',
-        password: 'admin123', // La contraseña NO será encriptada
+        password: 'admin123', // La contraseña será encriptada por el hook
         rol_id: rol.id
       });
       console.log('Usuario por defecto creado con éxito.');
