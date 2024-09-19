@@ -1,4 +1,4 @@
-import EstadoPedido from './src/models/estadopedido.js';
+import EstadoPedido from '../models/estadopedido.js';
 
 // Obtener todos los estados de pedido
 export const EstadoPedidoGetAll = async(req, res) => {
