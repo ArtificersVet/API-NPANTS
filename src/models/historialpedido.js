@@ -5,7 +5,7 @@ import sequelize from '../config/database.js'; // Ajusta la ruta si es necesario
  //Importa los modelos que se usarán para establecer relaciones
 //// Ajusta la ruta si es necesario
 import Usuario from './usuario.js'; // Ajusta la ruta si es necesario
-import EstadoPedido from './estadoPedido.js'; // Ajusta la ruta si es necesario
+import EstadoPedido from './estadopedido.js'; // Ajusta la ruta si es necesario
 
 // Define el modelo 'HistorialPedido' utilizando Sequelize
 const HistorialPedido = sequelize.define('HistorialPedido', {

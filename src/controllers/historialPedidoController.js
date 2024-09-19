@@ -1,7 +1,7 @@
 import HistorialPedido from '../models/historialpedido.js'; // Ajusta la ruta si es necesario
 // // Ajusta la ruta si es necesario
 import Usuario from '../models/usuario.js'; // Ajusta la ruta si es necesario
-import EstadoPedido from '../models/estadoPedido.js'; // Ajusta la ruta si es necesario
+import EstadoPedido from '../models/estadopedido.js'; // Ajusta la ruta si es necesario
 
 // Obtener todos los historial de pedidos
 export const HistorialPedidoGetAll = async(req, res) => {
