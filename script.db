@@ -79,3 +79,8 @@ CREATE Table historial_pedido(
     Foreign Key (pedido_id) REFERENCES pedido(id),
     Foreign Key (usuario_id2) REFERENCES usuarios(id)
 ) 
+
+CREATE Table tipo_prenda_vestir(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255)
+)
