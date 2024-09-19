@@ -4,11 +4,11 @@ import Usuario from '../models/usuario.js'; // Ajusta la ruta si es necesario
 import EstadoPedido from '../models/estadoPedido.js'; // Ajusta la ruta si es necesario
 
 // Obtener todos los historial de pedidos
-export const HistorialPedidoGetAll = async (req, res) => {
+export const HistorialPedidoGetAll = async(req, res) => {
     try {
         const historialPedidos = await HistorialPedido.findAll({
             include: [
-               // { model: Pedido, as: 'pedido' }, // Incluye información del pedido
+                // { model: Pedido, as: 'pedido' }, // Incluye información del pedido
                 { model: Usuario, as: 'usuario' }, // Incluye información del usuario
                 { model: EstadoPedido, as: 'estadoPedido' } // Incluye información del estado del pedido
             ]
@@ -25,7 +25,7 @@ export const HistorialPedidoGetAll = async (req, res) => {
 };
 
 // Crear un nuevo historial de pedido
-export const HistorialPedidoCreate = async (req, res) => {
+export const HistorialPedidoCreate = async(req, res) => {
     try {
         const historialPedido = await HistorialPedido.create(req.body);
         res.status(201).json(historialPedido);
@@ -36,12 +36,12 @@ export const HistorialPedidoCreate = async (req, res) => {
 };
 
 // Obtener un historial de pedido por su ID
-export const HistorialPedidoGetById = async (req, res) => {
+export const HistorialPedidoGetById = async(req, res) => {
     const { id } = req.params;
     try {
         const historialPedido = await HistorialPedido.findByPk(id, {
             include: [
-               // { model: Pedido, as: 'pedido' },
+                // { model: Pedido, as: 'pedido' },
                 { model: Usuario, as: 'usuario' },
                 { model: EstadoPedido, as: 'estadoPedido' }
             ]
@@ -58,7 +58,7 @@ export const HistorialPedidoGetById = async (req, res) => {
 };
 
 // Actualizar un historial de pedido por su ID
-export const HistorialPedidoUpdate = async (req, res) => {
+export const HistorialPedidoUpdate = async(req, res) => {
     const { id } = req.params;
     try {
         const [affectedRows] = await HistorialPedido.update(req.body, {
@@ -77,7 +77,7 @@ export const HistorialPedidoUpdate = async (req, res) => {
 };
 
 // Eliminar un historial de pedido por su ID
-export const HistorialPedidoDelete = async (req, res) => {
+export const HistorialPedidoDelete = async(req, res) => {
     const { id } = req.params;
     try {
         const affectedRows = await HistorialPedido.destroy({
