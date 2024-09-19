@@ -9,6 +9,8 @@ import tipocliente from './src/routes/tipoClienteRouter.js';
 import tipoprendavestir from './src/routes/tipoPrendaVestirRouter.js';
 import cliente from './src/routes/clienteRouter.js';
 import estadoPedidoRoutes from './src/routes/estadospedidoRouter.js';
+import talla from './src/routes/tallaRouter.js';
+
 
 const app = express();
 
@@ -19,6 +21,7 @@ app.use(tipocliente);
 app.use(estadoPedidoRoutes);
 app.use(tipoprendavestir);
 app.use(cliente);
+app.use(talla);
 router.post('/login', login);
 
 // Inicializar roles y usuario por defecto al iniciar el servidor
