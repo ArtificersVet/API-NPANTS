@@ -7,6 +7,7 @@ import initializeDefaultUser from './src/utils/initializeDefaultUser.js'; // Imp
 import { login } from './src/controllers/authController.js';
 import tipocliente from './src/routes/tipoClienteRouter.js';
 import tipoprendavestir from './src/routes/tipoPrendaVestirRouter.js';
+import cliente from './src/routes/clienteRouter.js';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(router);
 app.use(usuario);
 app.use(tipocliente);
 app.use(tipoprendavestir);
+app.use(cliente);
 router.post('/login', login);
 
 // Inicializar roles y usuario por defecto al iniciar el servidor
