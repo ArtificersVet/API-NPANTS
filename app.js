@@ -16,7 +16,7 @@ import metodopago from './src/routes/metodoPagoRoutes.js';
 import hitopedido from './src/routes/historialpedidoRouter.js'
 import pedido from './src/routes/pedidoRouter.js'
 import estilo from './src/routes/estiloRouter.js';
-
+import pago from './src/routes/pagoRouter.js';
 
 const app = express();
 
@@ -34,6 +34,7 @@ app.use(metodopago);
 app.use(hitopedido);
 app.use(pedido);
 app.use(estilo);
+app.use(pago);
 router.post('/login', login);
 
 // Inicializar roles y usuario por defecto al iniciar el servidor
