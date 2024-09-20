@@ -13,7 +13,7 @@ import talla from './src/routes/tallaRouter.js';
 import tela from './src/routes/telaRoutes.js';
 import metodopago from './src/routes/metodoPagoRoutes.js';
 import hitopedido from './src/routes/historialpedidoRouter.js'
-
+import pedido from './src/routes/pedidoRouter.js'
 
 
 
@@ -30,6 +30,7 @@ app.use(talla);
 app.use(tela);
 app.use(metodopago);
 app.use(hitopedido);
+app.use(pedido);
 router.post('/login', login);
 
 // Inicializar roles y usuario por defecto al iniciar el servidor
