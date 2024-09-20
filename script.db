@@ -84,3 +84,31 @@ CREATE Table tipo_prenda_vestir(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(255)
 )
+
+CREATE Table pago(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    fecha_pago DATE,
+    monto DECIMAL(18,2),
+    metodo_pago_id BIGINT,
+    pedido_id BIGINT,
+    Foreign Key (metodo_pago_id) REFERENCES metodo_pago(id),
+    Foreign Key (pedido_id) REFERENCES pedido(id)
+)
+
+CREATE Table estilo(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255),
+    tipo VARCHAR(255)
+)
+
+CREATE Table prenda_vestir(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    descripcion VARCHAR(255),
+    nombre VARCHAR(255),
+    estilo_id BIGINT,
+    tela_id BIGINT,
+    tipoprendavestir_id BIGINT,
+    Foreign Key (estilo_id) REFERENCES estilo(id),
+    Foreign Key (tela_id) REFERENCES tela(id),
+    Foreign Key (tipoprendavestir_id) REFERENCES tipo_prenda_vestir(id)
+)
