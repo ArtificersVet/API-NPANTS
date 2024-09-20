@@ -7,6 +7,7 @@ import initializeDefaultUser from './src/utils/initializeDefaultUser.js'; // Imp
 import { login } from './src/controllers/authController.js';
 import tipocliente from './src/routes/tipoClienteRouter.js';
 import tipoprendavestir from './src/routes/tipoPrendaVestirRouter.js';
+import prendavestir from './src/routes/prendaVestirRouter.js';
 import cliente from './src/routes/clienteRouter.js';
 import estadoPedido from './src/routes/estadospedidoRouter.js';
 import talla from './src/routes/tallaRouter.js';
@@ -25,6 +26,7 @@ app.use(usuario);
 app.use(tipocliente);
 app.use(estadoPedido);
 app.use(tipoprendavestir);
+app.use(prendavestir);
 app.use(cliente);
 app.use(talla);
 app.use(tela);
