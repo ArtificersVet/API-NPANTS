@@ -6,14 +6,16 @@ import {
     TallaUpdate,
     TallaDelete
 } from '../controllers/tallaController.js';
+import { verifyToken } from '../middlewares/authJwt.js'; // Ahora es verifyToken
+
 
 const router = express.Router();
 
 // Endpoints para tallas
-router.get('/tallas', TallaGetAll);
-router.post('/tallas/create', TallaCreate);
-router.get('/tallas/:id', TallaGetById);
-router.put('/tallas/:id', TallaUpdate);
-router.delete('/tallas/:id', TallaDelete);
+router.get('/tallas', verifyToken, TallaGetAll);
+router.post('/tallas/create', verifyToken, TallaCreate);
+router.get('/tallas/:id', verifyToken, TallaGetById);
+router.put('/tallas/:id', verifyToken, TallaUpdate);
+router.delete('/tallas/:id', verifyToken, TallaDelete);
 
 export default router;
