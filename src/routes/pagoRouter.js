@@ -10,12 +10,12 @@ import { verifyToken } from '../middlewares/authJwt.js';
 
 const router = express.Router();
 
- router.post('/pagos/create',verifyToken, PagoCreate);
+ router.post('/pagos/create', PagoCreate);
 
 // Rutas que requieren autorización
-router.get('/pagos',verifyToken,  PagoGetAll);  
-router.get('/pagos/:id',verifyToken,  PagoGetById);  
-router.put('/pagos/:id',verifyToken,  PagoUpdate);  
-router.delete('/pagos/:id',verifyToken,  PagoDelete); 
+router.get('/pagos',  PagoGetAll);  
+router.get('/pagos/:id',  PagoGetById);  
+router.put('/pagos/:id',  PagoUpdate);  
+router.delete('/pagos/:id',  PagoDelete); 
 
 export default router;

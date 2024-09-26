@@ -54,7 +54,10 @@ export const PagoGetById = async (req, res) => {
     const { id } = req.params;
     try {
         const pago = await Pago.findByPk(id, {
-            include: [{ model: MetodoPago, as: 'metodo de pago' }] // Incluye la información del rol
+            include: [
+                { model: MetodoPago, as: 'metodo_de_pago' },
+                { model: Pedido, as: 'pedido'}
+            ]  
         });
         if (!pago) {
             res.status(404).send('No se encontró el pago');
