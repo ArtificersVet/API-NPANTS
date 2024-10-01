@@ -112,3 +112,21 @@ CREATE Table prenda_vestir(
     Foreign Key (tela_id) REFERENCES tela(id),
     Foreign Key (tipoprendavestir_id) REFERENCES tipo_prenda_vestir(id)
 )
+
+CREATE TABLE DetalleProducto (
+    Id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    PedidoId BIGINT NOT NULL,
+    PrendaVestirId BIGINT NOT NULL,
+    TallaId BIGINT NOT NULL,
+    Cantidad INT NOT NULL,
+    Descripcion VARCHAR(255),
+    Precio DECIMAL(10, 2) NOT NULL,
+    TotalPieza BIGINT NOT NULL,
+    ConsumoTela DECIMAL(10, 2),
+    SubTotal DECIMAL(10, 2),
+    
+    -- Claves foráneas
+    CONSTRAINT FK_Pedido FOREIGN KEY (PedidoId) REFERENCES pedido(id) ON DELETE CASCADE,
+    CONSTRAINT FK_PrendaVestir FOREIGN KEY (PrendaVestirId) REFERENCES prenda_vestir(id) ON DELETE CASCADE,
+    CONSTRAINT FK_Talla FOREIGN KEY (TallaId) REFERENCES talla(id) ON DELETE CASCADE
+);

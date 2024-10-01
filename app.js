@@ -17,7 +17,7 @@ import hitopedido from './src/routes/historialpedidoRouter.js'
 import pedido from './src/routes/pedidoRouter.js'
 import estilo from './src/routes/estiloRouter.js';
 import pago from './src/routes/pagoRouter.js';
-
+import detalleproducto from './src/routes/detalleproductoRouter.js';
 const app = express();
 
 app.use(express.json());
@@ -35,6 +35,7 @@ app.use(hitopedido);
 app.use(pedido);
 app.use(estilo);
 app.use(pago);
+app.use(detalleproducto);
 router.post('/login', login);
 
 // Inicializar roles y usuario por defecto al iniciar el servidor
