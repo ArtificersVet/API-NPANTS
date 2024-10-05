@@ -16,7 +16,7 @@ export const TipoClienteGetAll = async (req, res) => {
     }
 };
 
-// Crear un nuevo tipocliente
+// Crear asaber un nuevo tipocliente
 export const TipoClienteCreate = async (req, res) => {
     try {
         const tipoCliente = await TipoCliente.create(req.body);
