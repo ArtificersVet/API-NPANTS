@@ -1,105 +1,120 @@
-create database dboNPANTS;
-use dboNPANTS;
+CREATE DATABASE dboNPANTS;
+USE dboNPANTS;
 
+-- Tabla roles
 CREATE TABLE roles (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(255) NOT NULL,
   descripcion TEXT
 );
 
-create table usuarios(
-id INT AUTO_INCREMENT PRIMARY KEY,
-rol_id INT,
-nombre VARCHAR(255) NOT NULL,
-email VARCHAR(255) NOT NULL,
-password VARCHAR(255) NOT NULL,
-FOREIGN KEY (rol_id) REFERENCES roles(id)
+-- Tabla usuarios
+CREATE TABLE usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  rol_id INT,
+  nombre VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  FOREIGN KEY (rol_id) REFERENCES roles(id)
 );
 
-insert into roles (nombre,descripcion) values ('Admin','Admin');
+-- Insertar rol inicial
+INSERT INTO roles (nombre, descripcion) VALUES ('Admin', 'Admin');
 
+-- Tabla tipo_cliente
 CREATE TABLE tipo_cliente (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    descripcion VARCHAR(255),
-    nombre VARCHAR(255)
-)
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  descripcion VARCHAR(255),
+  nombre VARCHAR(255)
+);
 
-CREATE Table cliente (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    direccion VARCHAR(255),
-    email VARCHAR(255),
-    nombre VARCHAR(255),
-    telefono VARCHAR(255),
-    tipocliente_id BIGINT,
-    Foreign Key (tipocliente_id) REFERENCES tipo_cliente(id)
-)
+-- Tabla cliente
+CREATE TABLE cliente (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  direccion VARCHAR(255),
+  email VARCHAR(255),
+  nombre VARCHAR(255),
+  telefono VARCHAR(255),
+  tipocliente_id BIGINT,
+  FOREIGN KEY (tipocliente_id) REFERENCES tipo_cliente(id)
+);
 
-CREATE Table tela(
-    id BIGINT PRIMARY KEY,
-    color VARCHAR(255),
-    nombre VARCHAR(255),
-    stock DOUBLE
-)
+-- Tabla tela
+CREATE TABLE tela (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  color VARCHAR(255),
+  nombre VARCHAR(255),
+  stock DOUBLE
+);
 
-CREATE Table talla(
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(255)
-)
+-- Tabla talla
+CREATE TABLE talla (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(255)
+);
 
-CREATE Table metodo_pago(
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(255)
-)
+-- Tabla metodo_pago
+CREATE TABLE metodo_pago (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(255)
+);
 
-CREATE Table estado_pedido(
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(255)
-)
+-- Tabla estado_pedido
+CREATE TABLE estado_pedido (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(255)
+);
 
-CREATE Table pedido(
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    fecha_pedido DATE,
-    saldo DECIMAL(10,2),
-    tipo_pago TINYINT,
-    total DECIMAL(10,2),
-    cliente_id BIGINT,
-    estado_pedido_id BIGINT,
-    Foreign Key (cliente_id) REFERENCES cliente(id),
-    Foreign Key (estado_pedido_id) REFERENCES estado_pedido(id)
-)
+-- Tabla pedido
+CREATE TABLE pedido (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  fecha_pedido DATE,
+  saldo DECIMAL(10,2),
+  tipo_pago TINYINT,
+  total DECIMAL(10,2),
+  cliente_id BIGINT,
+  estado_pedido_id BIGINT,
+  FOREIGN KEY (cliente_id) REFERENCES cliente(id),
+  FOREIGN KEY (estado_pedido_id) REFERENCES estado_pedido(id)
+);
 
-CREATE Table historial_pedido(
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    comentario VARCHAR(255),
-    fecha DATETIME,
-    estado_pedido_id BIGINT,
-    pedido_id BIGINT,
-    usuario_id2 INT,
-    Foreign Key (estado_pedido_id) REFERENCES estado_pedido(id),
-    Foreign Key (pedido_id) REFERENCES pedido(id),
-    Foreign Key (usuario_id2) REFERENCES usuarios(id)
-) 
+-- Tabla historial_pedido
+CREATE TABLE historial_pedido (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  comentario VARCHAR(255),
+  fecha DATETIME,
+  estado_pedido_id BIGINT,
+  pedido_id BIGINT,
+  usuario_id INT,
+  FOREIGN KEY (estado_pedido_id) REFERENCES estado_pedido(id),
+  FOREIGN KEY (pedido_id) REFERENCES pedido(id),
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
 
-CREATE Table tipo_prenda_vestir(
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(255)
-)
+-- Tabla tipo_prenda_vestir
+CREATE TABLE tipo_prenda_vestir (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(255)
+);
 
-CREATE Table pago(
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    fecha_pago DATE,
-    monto DECIMAL(18,2),
-    metodo_pago_id BIGINT,
-    pedido_id BIGINT,
-    Foreign Key (metodo_pago_id) REFERENCES metodo_pago(id),
-    Foreign Key (pedido_id) REFERENCES pedido(id)
-)
+-- Tabla pago
+CREATE TABLE pago (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  fecha_pago DATE,
+  monto DECIMAL(18,2),
+  metodo_pago_id BIGINT,
+  pedido_id BIGINT,
+  FOREIGN KEY (metodo_pago_id) REFERENCES metodo_pago(id),
+  FOREIGN KEY (pedido_id) REFERENCES pedido(id)
+);
 
-CREATE Table estilo(
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(255),
-    tipo VARCHAR(255)
-)
+-- Tabla estilo
+CREATE TABLE estilo (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(255),
+  tipo VARCHAR(255)
+);
+
 
 CREATE Table prenda_vestir(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -130,3 +145,27 @@ CREATE TABLE DetalleProducto (
     CONSTRAINT FK_PrendaVestir FOREIGN KEY (PrendaVestirId) REFERENCES prenda_vestir(id) ON DELETE CASCADE,
     CONSTRAINT FK_Talla FOREIGN KEY (TallaId) REFERENCES talla(id) ON DELETE CASCADE
 );
+
+-- Tabla prenda_vestir
+CREATE TABLE prenda_vestir (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  descripcion VARCHAR(255),
+  nombre VARCHAR(255),
+  estilo_id BIGINT,
+  tela_id BIGINT,
+  tipoprendavestir_id BIGINT,
+  FOREIGN KEY (estilo_id) REFERENCES estilo(id),
+  FOREIGN KEY (tela_id) REFERENCES tela(id),
+  FOREIGN KEY (tipoprendavestir_id) REFERENCES tipo_prenda_vestir(id)
+);
+
+-- Tabla EstiloTalla
+CREATE TABLE EstiloTalla (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  consumoTela DOUBLE NOT NULL,
+  estilo_id BIGINT NOT NULL,
+  talla_id BIGINT NOT NULL,
+  FOREIGN KEY (estilo_id) REFERENCES estilo(id) ON DELETE CASCADE,
+  FOREIGN KEY (talla_id) REFERENCES talla(id) ON DELETE CASCADE
+);
+
