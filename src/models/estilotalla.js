@@ -13,7 +13,7 @@ const EstiloTalla = sequelize.define('EstiloTalla', {
     type: DataTypes.DOUBLE,
     allowNull: false
   },
-  tallaId: {
+  talla_id: {
     type: DataTypes.BIGINT,
     allowNull: false,
     references: {
@@ -22,7 +22,7 @@ const EstiloTalla = sequelize.define('EstiloTalla', {
     },
     onDelete: 'CASCADE'
   },
-  estiloId: {
+  estilo_id: {
     type: DataTypes.BIGINT,
     allowNull: false,
     references: {
@@ -32,15 +32,15 @@ const EstiloTalla = sequelize.define('EstiloTalla', {
     onDelete: 'CASCADE'
   }
 }, {
-  tableName: 'estilo_talla',
+  tableName: 'estilotalla',
   timestamps: false
 });
 
 // Definir las asociaciones
-Talla.hasMany(EstiloTalla, { foreignKey: 'tallaId', onDelete: 'CASCADE' });
-EstiloTalla.belongsTo(Talla, { foreignKey: 'tallaId' });
+Talla.hasMany(EstiloTalla, { foreignKey: 'talla_id', onDelete: 'CASCADE' });
+EstiloTalla.belongsTo(Talla, { foreignKey: 'talla_id' });
 
-Estilo.hasMany(EstiloTalla, { foreignKey: 'estiloId', onDelete: 'CASCADE' });
-EstiloTalla.belongsTo(Estilo, { foreignKey: 'estiloId' });
+Estilo.hasMany(EstiloTalla, { foreignKey: 'estilo_id', onDelete: 'CASCADE' });
+EstiloTalla.belongsTo(Estilo, { foreignKey: 'estilo_id' });
 
 export default EstiloTalla;
