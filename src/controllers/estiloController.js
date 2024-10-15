@@ -77,48 +77,53 @@ export const EstiloGetById = async (req, res) => {
     }
 };
 
-// Actualizar un estilo y su asociación a tallas
+// Actualizar un estilo existente con asociación a tallas
 export const EstiloUpdate = async (req, res) => {
     const { id } = req.params;
-    const { nombre, tipo, estilotalla } = req.body;
-    console.log(`Solicitud para actualizar el estilo con ID: ${id}, datos:`, req.body);
+    const { nombre, tipo, estiloTallas } = req.body;
+
+    // Agregar console.log para verificar los datos recibidos en la solicitud
+    console.log("Datos recibidos para actualizar el estilo:", req.body);
+
     const transaction = await sequelize.transaction();
 
     try {
-        // Actualizar el estilo
         const estilo = await Estilo.findByPk(id);
         if (!estilo) {
-            console.log(`Estilo con ID ${id} no encontrado`);
-            res.status(404).send('No se encontró el estilo');
-            return;
+            return res.status(404).send('No se encontró el estilo');
         }
 
-        await estilo.update({ nombre, tipo }, { transaction });
-        console.log(`Estilo con ID ${id} actualizado`);
+        // Actualizar el estilo
+        estilo.nombre = nombre;
+        estilo.tipo = tipo;
+        await estilo.save({ transaction });
 
-        // Actualizar asociaciones en EstiloTalla
+        // Limpiar las tallas existentes
         await EstiloTalla.destroy({ where: { estilo_id: id }, transaction });
-        console.log(`Asociaciones antiguas de EstiloTalla eliminadas para Estilo ID ${id}`);
 
-        if (estilotalla && estilotalla.length > 0) {
-            for (const entry of estilotalla) {
-                await EstiloTalla.create({
-                    estilo_id: id,
-                    talla_id: entry.talla_id,
-                    consumoTela: entry.consumetela
-                }, { transaction });
-                console.log(`Nueva asociación EstiloTalla creada para Estilo ID ${id} con Talla ID ${entry.talla_id}`);
-            }
+        // Verificar si estiloTallas está presente
+        if (estiloTallas && Array.isArray(estiloTallas)) {
+            const estilosTallas = estiloTallas.map(item => ({
+                estilo_id: id, // Asegúrate de usar el id correcto
+                talla_id: item.tallaId, // Usa la propiedad correcta
+                consumoTela: item.consumoTela // Asegúrate de que los nombres coincidan
+            }));
+
+            // Agregar console.log para verificar el contenido antes de la inserción
+            console.log("Estilos y tallas a actualizar:", estilosTallas);
+
+            await EstiloTalla.bulkCreate(estilosTallas, { transaction });
         }
 
         await transaction.commit();
-        res.status(200).send(`Estilo con ID ${id} actualizado correctamente`);
+        res.status(200).json({ message: "Estilo actualizado exitosamente" });
     } catch (error) {
         await transaction.rollback();
-        console.error(`Error al actualizar el estilo con ID ${id}:`, error);
-        res.status(500).send('Error en el servidor');
+        console.error("Error al actualizar estilo:", error);
+        res.status(500).json({ message: "Error interno del servidor", error });
     }
 };
+
 
 // Eliminar un estilo y sus asociaciones
 export const EstiloDelete = async (req, res) => {
