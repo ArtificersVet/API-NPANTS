@@ -24,26 +24,45 @@ export const PedidoGetAll = async (req, res) => {
 
 export const PedidoCreate = async (req, res) => {
     try {
+        console.log('PedidoCreate', req.body); // Imprimir el cuerpo de la solicitud
         const { detalleproducto, ...pedidoData } = req.body;
 
         // Crear el pedido
         const pedido = await Pedido.create(pedidoData);
 
-        // Si hay detalles de productos, crearlos y asociarlos al pedido
+        // Si hay detalles de productos, validarlos y crearlos
         if (detalleproducto && detalleproducto.length > 0) {
-            const detalles = detalleproducto.map(detalle => ({
-                PrendaVestirId: detalle.prendaVestirId,
-                TallaId: detalle.talla_id,
-                Cantidad: detalle.cantidad,
-                Descripcion: detalle.descripcion,
-                Precio: detalle.precio,
-                TotalPieza: detalle.totalPieza,
-                ConsumoTela: detalle.consumoTela,
-                SubTotal: detalle.subTotal,
-                PedidoId: pedido.id // Asociar el ID del pedido a cada detalle
-            }));
-            console.log('Detalles a crear:', detalles);
-            await DetalleProducto.bulkCreate(detalles); // Crear múltiples detalles a la vez
+            const detalles = detalleproducto
+                .map(detalle => ({
+                    PrendaVestirId: detalle.prenda_vestir_id, // Asegúrate que este nombre sea correcto
+                    TallaId: detalle.talla_id, // Asegúrate que este nombre sea correcto
+                    Cantidad: detalle.cantidad,
+                    Descripcion: detalle.descripcion,
+                    Precio: detalle.precio,
+                    TotalPieza: detalle.total_pieza, // Asegúrate que este nombre sea correcto
+                    ConsumoTela: detalle.consumo_tela, // Asegúrate que este nombre sea correcto
+                    SubTotal: detalle.sub_total, // Asegúrate que este nombre sea correcto
+                    PedidoId: pedido.id // Asociar el ID del pedido a cada detalle
+                }))
+                .filter(detalle => 
+                    detalle.PrendaVestirId !== undefined &&
+                    detalle.TallaId !== undefined &&
+                    detalle.Cantidad !== undefined &&
+                    detalle.Precio !== undefined &&
+                    detalle.TotalPieza !== undefined &&
+                    detalle.ConsumoTela !== undefined &&
+                    detalle.SubTotal !== undefined
+                ); // Filtrar detalles válidos
+
+            console.log('Detalles válidos a crear:', detalles); // Log para verificar los detalles
+
+            // Solo crear si hay detalles válidos
+            if (detalles.length > 0) {
+                await DetalleProducto.bulkCreate(detalles); // Crear múltiples detalles a la vez
+                console.log('Detalles creados correctamente.');
+            } else {
+                console.log('No hay detalles válidos para crear.');
+            }
         }
 
         res.status(201).json(pedido);
