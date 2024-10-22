@@ -1,23 +1,37 @@
 import Pago from '../models/pago.js'; // Ajusta la ruta si es necesario
 import MetodoPago from '../models/metodoPago.js'; // Ajusta la ruta si es necesario
 import Pedido from '../models/pedido.js';
-// Obtener todos los Pagos
+
+// Obtener todos los pagos con paginación
 export const PagoGetAll = async (req, res) => {
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de pagos por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar pagos según la página
+
     try {
-        const pagos = await Pago.findAll({
+        const { count, rows: pagos } = await Pago.findAndCountAll({
             include: [
                 { model: MetodoPago, as: 'metodo_de_pago' }, // Incluye el método de pago
                 { model: Pedido, as: 'pedido' } // Incluye el pedido
-            ]
+            ],
+            limit,
+            offset
         });
+
         if (pagos.length === 0) {
-            res.status(404).send('No hay ningún Pago');
-        } else {
-            res.json(pagos);
+            return res.status(404).json({ message: 'No hay ningún pago' });
         }
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            pagos
+        });
     } catch (error) {
-        res.status(500).send('Error en el servidor');
-        console.error(error);
+        console.error('Error al obtener todos los pagos:', error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
 
