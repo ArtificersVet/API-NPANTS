@@ -3,24 +3,39 @@ import Cliente from '../models/cliente.js';
 import EstadoPedido from '../models/estadopedido.js';
 import DetalleProducto from '../models/detalleproducto.js'; // Importamos el modelo de DetalleProducto
 
-// Obtener todos los pedidos
+// Obtener todos los pedidos con paginación
 export const PedidoGetAll = async (req, res) => {
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de pedidos por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar pedidos según la página
+
     try {
-        const pedidos = await Pedido.findAll({
+        const { count, rows: pedidos } = await Pedido.findAndCountAll({
             include: [
                 { model: Cliente, as: 'cliente' },
                 { model: EstadoPedido, as: 'estado_pedido' }
-            ]
+            ],
+            limit,
+            offset
         });
+
         if (pedidos.length === 0) {
-            return res.status(404).send('No hay ningún pedido');
+            return res.status(404).json({ message: 'No hay ningún pedido' });
         }
-        res.json(pedidos);
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            pedidos
+        });
     } catch (error) {
-        console.error('Error al obtener todos los pedidos:', error); // Log detallado
-        res.status(500).send('Error en el servidor');
+        console.error('Error al obtener todos los pedidos:', error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
 
 export const PedidoCreate = async (req, res) => {
     try {
