@@ -2,16 +2,30 @@ import Tela from '../models/tela.js'; // Ajusta la ruta si es necesario
 
 // Obtener todas las telas
 export const TelaGetAll = async (req, res) => {
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de telas por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar telas según la página
+
     try {
-        const telas = await Tela.findAll();
+        const { count, rows: telas } = await Tela.findAndCountAll({
+            limit,
+            offset
+        });
+
         if (telas.length === 0) {
-            res.status(404).send('No hay ninguna tela');
-        } else {
-            res.json(telas);
+            return res.status(404).json({ message: 'No hay ninguna tela' });
         }
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            telas
+        });
     } catch (error) {
-        res.status(500).send('Error en el servidor');
-        console.error(error);
+        console.error('Error al obtener todas las telas:', error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
 

@@ -3,25 +3,35 @@ import EstiloTalla from '../models/estilotalla.js';
 import sequelize from '../config/database.js'; 
 import Talla from '../models/talla.js';
 
-// Obtener todos los estilos sin incluir tallas
+// Obtener todos los estilos
 export const EstiloGetAll = async (req, res) => {
-   
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de estilos por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar estilos según la página
+
     try {
-        const estilos = await Estilo.findAll(); // Solo obtener estilos sin incluir relaciones
+        const { count, rows: estilos } = await Estilo.findAndCountAll({
+            limit,
+            offset
+        });
 
         if (estilos.length === 0) {
             console.log("No se encontraron estilos");
-            res.status(404).send('No hay ningún estilo');
-        } else {
-            
-            res.json(estilos); // Retornar solo los estilos
+            return res.status(404).json({ message: 'No hay ningún estilo' });
         }
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            estilos
+        });
     } catch (error) {
         console.error("Error al obtener estilos:", error);
-        res.status(500).send('Error en el servidor');
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
-
 
 // Crear un nuevo estilo con asociación a tallas
 export const EstCreate = async (req, res) => {
