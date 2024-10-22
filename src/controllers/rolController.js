@@ -1,19 +1,31 @@
 import Rol from '../models/rol.js'; // Adjust the path if necessary
 
-// Obtener todos los roles
+// Obtener todos los roles con paginación
 export const RolGetAll = async (req, res) => {
+    const { page = 1, pageSize = 10 } = req.query;
+    const offset = (page - 1) * pageSize;
+
     try {
-        const roles = await Rol.findAll();
-        if (roles.length === 0) {
+        const { count, rows } = await Rol.findAndCountAll({
+            limit: pageSize,
+            offset: offset,
+        });
+        if (rows.length === 0) {
             res.status(404).send('No hay ningún rol');
         } else {
-            res.json(roles);
+            res.json({
+                totalCount: count,
+                totalPages: Math.ceil(count / pageSize),
+                currentPage: page,
+                roles: rows
+            });
         }
     } catch (error) {
         res.status(500).send('Error en el servidor');
         console.error(error);
     }
 };
+
 
 // Crear un nuevo rol
 export const RolCreate = async (req, res) => {

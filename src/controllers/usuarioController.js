@@ -1,22 +1,37 @@
 import Usuario from '../models/usuario.js'; // Ajusta la ruta si es necesario
 import Rol from '../models/rol.js'; // Ajusta la ruta si es necesario
 
-// Obtener todos los usuarios
+// Obtener todos los usuarios con paginación
 export const UsuarioGetAll = async (req, res) => {
+    const { page = 1, pageSize = 10 } = req.query;
+
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de usuarios por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar usuarios según la página
+
     try {
-        const usuarios = await Usuario.findAll({
-            include: [{ model: Rol, as: 'rol' }] // Incluye la información del rol
+        const { count, rows: usuarios } = await Usuario.findAndCountAll({
+            include: [{ model: Rol, as: 'rol' }],
+            limit,
+            offset
         });
+
         if (usuarios.length === 0) {
-            res.status(404).send('No hay ningún usuario');
-        } else {
-            res.json(usuarios);
+            return res.status(404).json({ message: 'No hay ningún usuario' });
         }
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            usuarios
+        });
     } catch (error) {
-        res.status(500).send('Error en el servidor');
         console.error(error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
 
 // Crear un nuevo usuario
 export const UsuarioCreate = async (req, res) => {
