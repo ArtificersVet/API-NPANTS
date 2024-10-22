@@ -4,8 +4,10 @@ import {
     PedidoGetAll,
     PedidoGetById,
     PedidoUpdate,
-    PedidoDelete
-} from '../controllers/pedidoController.js'; // Asegúrate de que la ruta sea correcta
+    PedidoDelete,
+    PedidoCapturePayment,
+    PedidoCancelPayment
+} from '../controllers/pedidoController.js';
 
 const router = express.Router();
 
@@ -15,5 +17,9 @@ router.post('/pedidos/create', PedidoCreate);
 router.get('/pedidos/:id', PedidoGetById);
 router.put('/pedidos/:id', PedidoUpdate);
 router.delete('/pedidos/:id', PedidoDelete);
+
+// Endpoints para PayPal
+router.post('/pedidos/capture-payment', PedidoCapturePayment);
+router.post('/pedidos/:id/cancel-payment', PedidoCancelPayment);
 
 export default router;
