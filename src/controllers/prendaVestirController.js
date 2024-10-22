@@ -5,22 +5,35 @@ import TipoPrendaVestir from '../models/tipoPrendaVestir.js';
 
 // Obtener todas las prendas de vestir
 export const PrendasGetAll = async (req, res) => {
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de prendas por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar prendas según la página
+
     try {
-        const prendas = await PrendaVestir.findAll({
+        const { count, rows: prendas } = await PrendaVestir.findAndCountAll({
             include: [
                 { model: Tela, as: 'tela' },
                 { model: Estilo, as: 'estilo' },
                 { model: TipoPrendaVestir, as: 'tipoPrendaVestir' }
-            ]
+            ],
+            limit,
+            offset
         });
+
         if (prendas.length === 0) {
-            res.status(404).send('No hay ninguna prenda de vestir');
-        } else {
-            res.json(prendas);
+            return res.status(404).json({ message: 'No hay ninguna prenda de vestir' });
         }
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            prendas
+        });
     } catch (error) {
-        res.status(500).send('Error en el servidor');
-        console.error(error);
+        console.error('Error al obtener todas las prendas de vestir:', error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
 
