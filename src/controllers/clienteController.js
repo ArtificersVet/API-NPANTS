@@ -4,20 +4,34 @@ import TipoCliente from '../models/tipoCliente.js';
 
 // Obtener todos los clientes
 export const ClienteGetAll = async (req, res) => {
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de clientes por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar clientes según la página
+
     try {
-        const clientes = await Cliente.findAll({
-            include: [{ model: TipoCliente, as: 'tipo_cliente' }] 
+        const { count, rows: clientes } = await Cliente.findAndCountAll({
+            include: [{ model: TipoCliente, as: 'tipo_cliente' }],
+            limit,
+            offset
         });
+
         if (clientes.length === 0) {
-            res.status(404).send('No hay ningún cliente');
-        } else {
-            res.json(clientes);
+            return res.status(404).json({ message: 'No hay ningún cliente' });
         }
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            clientes
+        });
     } catch (error) {
-        res.status(500).send('Error en el servidor');
-        console.error(error);
+        console.error('Error al obtener todos los clientes:', error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
 
 // Crear un nuevo cliente
 export const ClienteCreate = async (req, res) => {

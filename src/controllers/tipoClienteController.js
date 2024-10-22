@@ -1,18 +1,31 @@
 import TipoCliente from '../models/tipoCliente.js'; // Adjust the path if necessary
 
-// Obtener todos los tipoclientes
+// Obtener todos los tipos de clientes
 export const TipoClienteGetAll = async (req, res) => {
-    try { 
-        console.log("cualquier cosa");
-        const tipoclientes = await TipoCliente.findAll();
+    const { page = 1, pageSize = 10 } = req.query;
+    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de tipos de clientes por página
+    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar tipos de clientes según la página
+
+    try {
+        const { count, rows: tipoclientes } = await TipoCliente.findAndCountAll({
+            limit,
+            offset
+        });
+
         if (tipoclientes.length === 0) {
-            res.status(404).send('No hay ningún tipo cliente');
-        } else {
-            res.json(tipoclientes);
+            return res.status(404).json({ message: 'No hay ningún tipo cliente' });
         }
+
+        res.json({
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            pageSize: limit,
+            tipoclientes
+        });
     } catch (error) {
-        res.status(500).send('Error en el servidor');
-        console.error(error);
+        console.error('Error al obtener todos los tipos de clientes:', error);
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
 
