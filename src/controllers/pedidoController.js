@@ -114,7 +114,7 @@ export const PedidoCreate = async (req, res) => {
                 brand_name: 'TuMarca',
                 landing_page: 'BILLING',
                 user_action: 'PAY_NOW',
-                return_url: 'https://tusitio.com/pago-exitoso',
+                return_url: 'http://localhost:3000/pedidos/capture-payment',
                 cancel_url: 'https://tusitio.com/pago-cancelado'
             }
         });
@@ -156,15 +156,16 @@ export const PedidoCreate = async (req, res) => {
 // Capturar el pago de PayPal
 export const PedidoCapturePayment = async (req, res) => {
     try {
-        const { orderID } = req.body;
+        const { token,PayerID } = req.query ;
+        console.log({token,PayerID});
         const client = getPayPalClient();
-        
-        const request = new paypal.orders.OrdersCaptureRequest(orderID);
+        console.log({token,PayerID});
+        const request = new paypal.orders.OrdersCaptureRequest(token);
         const capture = await client.execute(request);
 
         // Actualizar el registro de pago
         const payment = await PaypalPayment.findOne({
-            where: { paypal_order_id: orderID }
+            where: { paypal_order_id: token }
         });
 
         if (payment) {
@@ -188,7 +189,7 @@ export const PedidoCapturePayment = async (req, res) => {
 
         res.json({
             status: 'COMPLETED',
-            orderID,
+            token,
             captureID: capture.result.purchase_units[0].payments.captures[0].id
         });
     } catch (error) {
