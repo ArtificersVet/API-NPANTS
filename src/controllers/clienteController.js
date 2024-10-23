@@ -2,7 +2,7 @@ import Cliente from '../models/cliente.js';
 import TipoCliente from '../models/tipoCliente.js';
 
 
-// Obtener todos los clientes
+// Obtener todos los clientes con paginación
 export const ClienteGetAll = async (req, res) => {
     const { page = 1, pageSize = 10 } = req.query;
     const limit = Math.max(1, parseInt(pageSize)); // Cantidad de clientes por página
@@ -10,7 +10,7 @@ export const ClienteGetAll = async (req, res) => {
 
     try {
         const { count, rows: clientes } = await Cliente.findAndCountAll({
-            include: [{ model: TipoCliente, as: 'tipo_cliente' }],
+            include: [{ model: TipoCliente, as: 'tipo_cliente' }], // Incluir el modelo relacionado
             limit,
             offset
         });

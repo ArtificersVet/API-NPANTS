@@ -7,7 +7,7 @@ export const TipoClienteGetAll = async (req, res) => {
     const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar tipos de clientes según la página
 
     try {
-        const { count, rows: tipoclientes } = await TipoCliente.findAndCountAll({
+        const { rows: tipoclientes } = await TipoCliente.findAndCountAll({
             limit,
             offset
         });
@@ -16,18 +16,14 @@ export const TipoClienteGetAll = async (req, res) => {
             return res.status(404).json({ message: 'No hay ningún tipo cliente' });
         }
 
-        res.json({
-            totalItems: count,
-            totalPages: Math.ceil(count / limit),
-            currentPage: parseInt(page),
-            pageSize: limit,
-            tipoclientes
-        });
+        // Devolver directamente el array de tipoclientes
+        res.json(tipoclientes);
     } catch (error) {
         console.error('Error al obtener todos los tipos de clientes:', error);
         res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
 
 // Crear asaber un nuevo tipocliente
 export const TipoClienteCreate = async (req, res) => {
