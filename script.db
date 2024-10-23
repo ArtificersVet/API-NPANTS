@@ -169,3 +169,19 @@ CREATE TABLE EstiloTalla (
   FOREIGN KEY (talla_id) REFERENCES talla(id) ON DELETE CASCADE
 );
 
+-- Tabla Para pago por targeta --
+CREATE TABLE paypal_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    paypal_order_id VARCHAR(255) NOT NULL,
+    transaction_id VARCHAR(255),
+    amount DECIMAL(10, 2) NOT NULL,
+    currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    status ENUM('CREATED', 'COMPLETED', 'FAILED') NOT NULL DEFAULT 'CREATED',
+    pedido_id BIGINT,  -- Cambiar a BIGINT si 'pedido.id' es BIGINT
+    payer_email VARCHAR(255),
+    payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    additional_data JSON,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_pedido_id FOREIGN KEY (pedido_id) REFERENCES pedido(id)
+);

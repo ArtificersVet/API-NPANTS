@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import router from './src/routes/rolRouter.js'; // Asegúrate de que la ruta es correcta
 import usuario from './src/routes/usuarioRouter.js'; // Asegúrate de que la ruta es correcta
@@ -19,6 +20,8 @@ import estilo from './src/routes/estiloRouter.js';
 import pago from './src/routes/pagoRouter.js';
 import detalleproducto from './src/routes/detalleproductoRouter.js';
 import EstiloTalla from './src/models/estilotalla.js';
+
+dotenv.config();
 const app = express();
 
 app.use(express.json());
