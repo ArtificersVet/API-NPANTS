@@ -1,17 +1,54 @@
 import Talla from '../models/talla.js';
 
-// Obtener todas las tallas
 export const TallaGetAll = async (req, res) => {
     try {
-        const tallas = await Talla.findAll();
+        const page = parseInt(req.query.page) || 1; // Página actual, por defecto 1
+        const limit = parseInt(req.query.limit) || 10; // Elementos por página, por defecto 10
+        
+        // Calcular el offset
+        const offset = (page - 1) * limit;
+        
+        // Realizar la consulta paginada
+        const { count, rows: tallas } = await Talla.findAndCountAll({
+            limit,
+            offset,
+            order: [['id', 'ASC']] // Ordenar por ID de forma ascendente
+        });
+        
+        // Calcular el total de páginas
+        const totalPages = Math.ceil(count / limit);
+        
         if (tallas.length === 0) {
-            res.status(404).send('No hay ninguna talla');
+            res.status(404).json({
+                message: 'No hay ninguna talla',
+                data: [],
+                pagination: {
+                    totalItems: count,
+                    totalPages: totalPages,
+                    currentPage: page,
+                    itemsPerPage: limit
+                }
+            });
         } else {
-            res.json(tallas);
+            // Devolver resultados con información de paginación
+            res.json({
+                data: tallas,
+                pagination: {
+                    totalItems: count,
+                    totalPages: totalPages,
+                    currentPage: page,
+                    itemsPerPage: limit,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
+                }
+            });
         }
     } catch (error) {
-        res.status(500).send('Error en el servidor');
-        console.error(error);
+        console.error('Error al obtener tallas:', error);
+        res.status(500).json({
+            message: 'Error en el servidor',
+            error: error.message
+        });
     }
 };
 
