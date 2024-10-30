@@ -7,12 +7,12 @@ export const TipoPrendaVestirGetAll = async (req, res) => {
     const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar tipos de prendas según la página
 
     try {
-        const { count, rows: tipoprendasvestir } = await TipoPrendaVestir.findAndCountAll({
+        const { count, rows: tiposPrendaVestir } = await TipoPrendaVestir.findAndCountAll({
             limit,
             offset
         });
 
-        if (tipoprendasvestir.length === 0) {
+        if (tiposPrendaVestir.length === 0) {
             return res.status(404).json({ message: 'No hay ningún tipo de prenda de vestir' });
         }
 
@@ -21,7 +21,7 @@ export const TipoPrendaVestirGetAll = async (req, res) => {
             totalPages: Math.ceil(count / limit),
             currentPage: parseInt(page),
             pageSize: limit,
-            tipoprendasvestir
+            tiposPrendaVestir
         });
     } catch (error) {
         console.error('Error al obtener todos los tipos de prendas de vestir:', error);
