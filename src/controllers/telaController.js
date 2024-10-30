@@ -1,6 +1,7 @@
 import Tela from '../models/tela.js'; // Ajusta la ruta si es necesario
 
 // Obtener todas las telas
+// Obtener todas las telas
 export const TelaGetAll = async (req, res) => {
     const { page = 1, pageSize = 10 } = req.query;
     const limit = Math.max(1, parseInt(pageSize)); // Cantidad de telas por página
