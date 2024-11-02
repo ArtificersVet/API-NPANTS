@@ -3,11 +3,11 @@ import EstadoPedido from '../models/estadopedido.js';
 // Obtener todos los estados de pedido
 export const EstadoPedidoGetAll = async (req, res) => {
     const { page = 1, pageSize = 10 } = req.query;
-    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de estados por página
-    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar estados según la página
+    const limit = Math.max(1, parseInt(pageSize));
+    const offset = Math.max(0, (parseInt(page) - 1) * limit);
 
     try {
-        const { count, rows: estadosPedido } = await EstadoPedido.findAndCountAll({
+        const { rows: estadosPedido } = await EstadoPedido.findAndCountAll({
             limit,
             offset
         });
@@ -16,18 +16,13 @@ export const EstadoPedidoGetAll = async (req, res) => {
             return res.status(404).json({ message: 'No hay ningún estado de pedido' });
         }
 
-        res.json({
-            totalItems: count,
-            totalPages: Math.ceil(count / limit),
-            currentPage: parseInt(page),
-            pageSize: limit,
-            estadosPedido
-        });
+        res.json(estadosPedido); // Devolver solo el array de estados
     } catch (error) {
         console.error('Error al obtener todos los estados de pedido:', error);
         res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
 
 // Crear un nuevo estado de pedido
 export const EstadoPedidoCreate = async(req, res) => {
