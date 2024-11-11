@@ -19,7 +19,7 @@ import pedido from './src/routes/pedidoRouter.js'
 import estilo from './src/routes/estiloRouter.js';
 import pago from './src/routes/pagoRouter.js';
 import detalleproducto from './src/routes/detalleproductoRouter.js';
-import EstiloTalla from './src/models/estilotalla.js';
+import { obtenerRespuestaDeOpenAI } from './src/services/openaiService.js'; // Importar el servicio de OpenAI
 
 dotenv.config();
 const app = express();
@@ -40,8 +40,20 @@ app.use(pedido);
 app.use(estilo);
 app.use(pago);
 app.use(detalleproducto);
-app.use(EstiloTalla);
 router.post('/login', login);
+
+// Ruta para interactuar con la API de OpenAI, usando el servicio importado
+app.post('/chat', async (req, res) => {
+    const userMessage = req.body.message; // Mensaje recibido desde el frontend
+
+    try {
+        const respuesta = await obtenerRespuestaDeOpenAI(userMessage); // Llamada al servicio
+        res.json({ response: respuesta });
+    } catch (error) {
+        console.error('Error en la llamada a OpenAI:', error);
+        res.status(500).json({ error: 'Hubo un error al obtener la respuesta de la API.' });
+    }
+});
 
 // Inicializar roles y usuario por defecto al iniciar el servidor
 const initializeApp = async() => {
