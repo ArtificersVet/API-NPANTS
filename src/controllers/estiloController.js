@@ -1,168 +1,210 @@
 import Estilo from '../models/estilo.js';
 import EstiloTalla from '../models/estilotalla.js';
-import sequelize from '../config/database.js'; 
 import Talla from '../models/talla.js';
+import sequelize from '../config/database.js';
 
-// Obtener todos los estilos
-export const EstiloGetAll = async (req, res) => {
-    const { page = 1, pageSize = 10 } = req.query;
-    const limit = Math.max(1, parseInt(pageSize)); // Cantidad de estilos por página
-    const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar estilos según la página
-
-    try {
-        const { count, rows: estilos } = await Estilo.findAndCountAll({
-            limit,
-            offset
-        });
-
-        if (estilos.length === 0) {
-            console.log("No se encontraron estilos");
-            return res.status(404).json({ message: 'No hay ningún estilo' });
+// Obtener todos los estilos con sus tallas asociadas
+export const getEstilos = async (req, res) => {
+  try {
+    const estilos = await Estilo.findAll({
+      include: [
+        {
+          model: EstiloTalla,
+          as: 'tallas',
+          include: [
+            {
+              model: Talla,
+              as: 'talla'
+            }
+          ]
         }
-
-        res.json({
-            totalItems: count,
-            totalPages: Math.ceil(count / limit),
-            currentPage: parseInt(page),
-            pageSize: limit,
-            estilos
-        });
-    } catch (error) {
-        console.error("Error al obtener estilos:", error);
-        res.status(500).json({ message: 'Error en el servidor', error: error.message });
-    }
+      ]
+    });
+    res.json(estilos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-// Crear un nuevo estilo con asociación a tallas
-export const EstCreate = async (req, res) => {
-    console.log("Solicitud para crear un nuevo estilo:", req.body);
-    const { nombre, tipo, estiloTallas } = req.body; // Cambié estilotalla a estiloTallas
-    const transaction = await sequelize.transaction();
+// Obtener un estilo por ID con sus tallas asociadas
+export const getEstiloById = async (req, res) => {
+  const { id } = req.params;
 
-    try {
-        const newEstilo = await Estilo.create({ nombre, tipo }, { transaction });
-
-        // Verificar si estiloTallas está presente
-        if (estiloTallas && Array.isArray(estiloTallas)) {
-            const estilosTallas = estiloTallas.map(item => ({
-                estilo_id: newEstilo.id, // Asegúrate de usar newEstilo.id
-                talla_id: item.tallaId, // Usa la propiedad correcta, asegurando que coincida con tu objeto
-                consumoTela: item.consumoTela // Asegúrate de que los nombres coincidan
-            }));
-
-            await EstiloTalla.bulkCreate(estilosTallas, { transaction });
+  try {
+    const estilo = await Estilo.findByPk(id, {
+      include: [
+        {
+          model: EstiloTalla,
+          as: 'tallas',
+          include: [
+            {
+              model: Talla,
+              as: 'talla'
+            }
+          ]
         }
+      ]
+    });
 
-        await transaction.commit();
-        res.status(201).json({ message: "Estilo creado exitosamente", data: newEstilo });
-    } catch (error) {
-        await transaction.rollback();
-        console.error("Error al crear estilo:", error);
-        res.status(500).json({ message: "Error interno del servidor", error });
+    if (!estilo) {
+      return res.status(404).json({ error: 'Estilo no encontrado' });
     }
+
+    res.json(estilo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
+// Crear un nuevo estilo con sus tallas asociadas
+export const createEstilo = async (req, res) => {
+  const { nombre, tipo, tallas } = req.body;
 
-// Obtener un estilo por ID
-export const EstiloGetById = async (req, res) => {
-    const { id } = req.params;
-    console.log(`Solicitud para obtener el estilo con ID: ${id}`);
-    try {
-        const estilo = await Estilo.findByPk(id, {
-            include: [{
-                model: EstiloTalla,
-                include: [Talla]
-            }]
-        });
-        if (!estilo) {
-            console.log(`Estilo con ID ${id} no encontrado`);
-            res.status(404).send('No se encontró el estilo');
-        } else {
-            console.log("Estilo encontrado:", estilo);
-            res.json(estilo);
+  try {
+    const result = await sequelize.transaction(async (t) => {
+      // Validación de datos
+      if (!nombre || !tipo) {
+        throw new Error('Nombre y tipo son obligatorios.');
+      }
+
+      // Crear el Estilo (maestro)
+      const estilo = await Estilo.create({ nombre, tipo }, { transaction: t });
+
+      // Verificar si hay tallas para asociar
+      if (tallas && tallas.length > 0) {
+        // Validación de datos de tallas
+        for (const talla of tallas) {
+          if (!talla.consumoTela || talla.consumoTela <= 0 || !talla.talla_id) {
+            throw new Error('Datos de talla inválidos.');
+          }
         }
-    } catch (error) {
-        console.error(`Error al obtener el estilo con ID ${id}:`, error);
-        res.status(500).send('Error en el servidor');
-    }
+
+        // Crear los detalles de EstiloTalla
+        const estiloTallas = tallas.map(t => ({
+          consumoTela: t.consumoTela,
+          estilo_id: estilo.id,
+          talla_id: t.talla_id
+        }));
+        await EstiloTalla.bulkCreate(estiloTallas, { transaction: t });
+      }
+
+      // Recuperar el Estilo con las tallas asociadas
+      const estiloConTallas = await Estilo.findByPk(estilo.id, {
+        include: [
+          {
+            model: EstiloTalla,
+            as: 'tallas',
+            include: [
+              {
+                model: Talla,
+                as: 'talla'
+              }
+            ]
+          }
+        ],
+        transaction: t
+      });
+
+      return estiloConTallas;
+    });
+
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-// Actualizar un estilo existente con asociación a tallas
-export const EstiloUpdate = async (req, res) => {
-    const { id } = req.params;
-    const { nombre, tipo, estiloTallas } = req.body;
+// Actualizar un estilo y sus tallas asociadas
+export const updateEstilo = async (req, res) => {
+  const { id } = req.params;
+  const { nombre, tipo, tallas } = req.body;
 
-    // Agregar console.log para verificar los datos recibidos en la solicitud
-    console.log("Datos recibidos para actualizar el estilo:", req.body);
+  try {
+    await sequelize.transaction(async (t) => {
+      // Buscar el estilo por ID
+      const estilo = await Estilo.findByPk(id, { transaction: t });
+      if (!estilo) {
+        throw new Error('Estilo no encontrado'); 
+      }
 
-    const transaction = await sequelize.transaction();
+      // Validación de datos
+      if (!nombre || !tipo) {
+        throw new Error('Nombre y tipo son obligatorios.');
+      }
 
-    try {
-        const estilo = await Estilo.findByPk(id);
-        if (!estilo) {
-            return res.status(404).send('No se encontró el estilo');
+      // Actualizar los datos del estilo (maestro)
+      estilo.nombre = nombre;
+      estilo.tipo = tipo;
+      await estilo.save({ transaction: t });
+
+      // Actualizar los detalles de tallas (detalle)
+      if (tallas && tallas.length > 0) {
+        // Validación de datos de tallas
+        for (const talla of tallas) {
+          if (!talla.consumoTela || talla.consumoTela <= 0 || !talla.talla_id) {
+            throw new Error('Datos de talla inválidos.');
+          }
         }
 
-        // Actualizar el estilo
-        estilo.nombre = nombre;
-        estilo.tipo = tipo;
-        await estilo.save({ transaction });
+        // Obtener las tallas existentes
+        const tallasExistentes = await EstiloTalla.findAll({ where: { estilo_id: id }, transaction: t });
 
-        // Limpiar las tallas existentes
-        await EstiloTalla.destroy({ where: { estilo_id: id }, transaction });
+        // Iterar sobre las tallas nuevas
+        for (const nuevaTalla of tallas) {
+          // Buscar si la talla ya existe
+          const tallaExistente = tallasExistentes.find(t => t.talla_id === nuevaTalla.talla_id);
 
-        // Verificar si estiloTallas está presente
-        if (estiloTallas && Array.isArray(estiloTallas)) {
-            const estilosTallas = estiloTallas.map(item => ({
-                estilo_id: id, // Asegúrate de usar el id correcto
-                talla_id: item.tallaId, // Usa la propiedad correcta
-                consumoTela: item.consumoTela // Asegúrate de que los nombres coincidan
-            }));
-
-            // Agregar console.log para verificar el contenido antes de la inserción
-            console.log("Estilos y tallas a actualizar:", estilosTallas);
-
-            await EstiloTalla.bulkCreate(estilosTallas, { transaction });
+          if (tallaExistente) {
+            // Actualizar la talla existente
+            tallaExistente.consumoTela = nuevaTalla.consumoTela;
+            await tallaExistente.save({ transaction: t });
+          } else {
+            // Crear una nueva talla
+            await EstiloTalla.create({
+              consumoTela: nuevaTalla.consumoTela,
+              estilo_id: id,
+              talla_id: nuevaTalla.talla_id
+            }, { transaction: t });
+          }
         }
 
-        await transaction.commit();
-        res.status(200).json({ message: "Estilo actualizado exitosamente" });
-    } catch (error) {
-        await transaction.rollback();
-        console.error("Error al actualizar estilo:", error);
-        res.status(500).json({ message: "Error interno del servidor", error });
-    }
+        // Eliminar las tallas que ya no están presentes
+        for (const tallaExistente of tallasExistentes) {
+          if (!tallas.find(t => t.talla_id === tallaExistente.talla_id)) {
+            await tallaExistente.destroy({ transaction: t });
+          }
+        }
+      }
+    });
+
+    // Devolver el estilo actualizado junto con los detalles
+    const estiloActualizado = await Estilo.findByPk(id, {
+      include: [{ model: EstiloTalla, as: 'tallas', include: ['talla'] }]
+    });
+    res.json(estiloActualizado);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
+// Eliminar un estilo y sus tallas asociadas
+export const deleteEstilo = async (req, res) => {
+  const { id } = req.params;
 
-// Eliminar un estilo y sus asociaciones
-export const EstiloDelete = async (req, res) => {
-    const { id } = req.params;
-    console.log(`Solicitud para eliminar el estilo con ID: ${id}`);
-    const transaction = await sequelize.transaction();
+  try {
+    await sequelize.transaction(async (t) => {
+      // Eliminar los detalles asociados primero
+      await EstiloTalla.destroy({ where: { estilo_id: id }, transaction: t });
 
-    try {
-        // Eliminar las asociaciones en EstiloTalla
-        await EstiloTalla.destroy({ where: { estilo_id: id }, transaction });
-        console.log(`Asociaciones de EstiloTalla eliminadas para Estilo ID ${id}`);
+      // Eliminar el estilo
+      const result = await Estilo.destroy({ where: { id }, transaction: t });
+      if (!result) {
+        throw new Error('Estilo no encontrado'); 
+      }
+    });
 
-        // Eliminar el estilo
-        const affectedRows = await Estilo.destroy({
-            where: { id },
-            transaction
-        });
-
-        if (affectedRows === 0) {
-            console.log(`No se encontró el estilo con ID ${id}`);
-            res.status(404).send('No se encontró el estilo');
-        } else {
-            await transaction.commit();
-            console.log(`Estilo con ID ${id} eliminado correctamente`);
-            res.status(200).send(`Estilo con ID ${id} eliminado correctamente`);
-        }
-    } catch (error) {
-        await transaction.rollback();
-        console.error(`Error al eliminar el estilo con ID ${id}:`, error);
-        res.status(500).send('Error en el servidor');
-    }
+    res.json({ message: 'Estilo eliminado con éxito' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

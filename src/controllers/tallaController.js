@@ -52,6 +52,23 @@ export const TallaGetAll = async (req, res) => {
     }
 };
 
+
+export const getTallas = async (req, res) => {
+    try {
+      const tallas = await Talla.findAll({
+        order: [['id', 'ASC']] // Ordenar por ID de forma ascendente
+      });
+  
+      res.json(tallas); 
+    } catch (error) {
+      console.error('Error al obtener tallas:', error);
+      res.status(500).json({
+        message: 'Error en el servidor',
+        error: error.message
+      });
+    }
+  };
+
 // Crear una nueva talla
 export const TallaCreate = async (req, res) => {
     const { nombre } = req.body;

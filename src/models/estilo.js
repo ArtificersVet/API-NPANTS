@@ -1,9 +1,10 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';  
+import sequelize from '../config/database.js';
+import EstiloTalla from '../models/estilotalla.js';
 
 const Estilo = sequelize.define('Estilo', {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     autoIncrement: true,
     primaryKey: true
   },
@@ -13,11 +14,14 @@ const Estilo = sequelize.define('Estilo', {
   },
   tipo: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: false
   }
 }, {
   tableName: 'estilo',
   timestamps: false
 });
+
+// Relación: Estilo tiene muchos EstiloTalla
+Estilo.hasMany(EstiloTalla, { foreignKey: 'estilo_id', as: 'tallas' });
 
 export default Estilo;
