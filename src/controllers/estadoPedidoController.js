@@ -7,7 +7,8 @@ export const EstadoPedidoGetAll = async (req, res) => {
     const offset = Math.max(0, (parseInt(page) - 1) * limit);
 
     try {
-        const { rows: estadosPedido } = await EstadoPedido.findAndCountAll({
+        // Obtener los estados de pedido y contar el total de registros
+        const { count: totalItems, rows: estadosPedido } = await EstadoPedido.findAndCountAll({
             limit,
             offset
         });
@@ -16,7 +17,20 @@ export const EstadoPedidoGetAll = async (req, res) => {
             return res.status(404).json({ message: 'No hay ningún estado de pedido' });
         }
 
-        res.json(estadosPedido); // Devolver solo el array de estados
+        // Calcular el número total de páginas
+        const totalPages = Math.ceil(totalItems / limit);
+
+        // Crear una respuesta paginada
+        const paginatedResponse = {
+            totalItems,
+            totalPages,
+            currentPage: parseInt(page),
+            pageSize: limit,
+            estadosPedido
+        };
+
+        // Devolver la respuesta paginada
+        res.json(paginatedResponse);
     } catch (error) {
         console.error('Error al obtener todos los estados de pedido:', error);
         res.status(500).json({ message: 'Error en el servidor', error: error.message });
