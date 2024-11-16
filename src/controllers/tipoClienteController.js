@@ -7,22 +7,33 @@ export const TipoClienteGetAll = async (req, res) => {
     const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar tipos de clientes según la página
 
     try {
-        const { rows: tipoclientes } = await TipoCliente.findAndCountAll({
+        // Obtener los tipos de clientes y la cuenta total
+        const { count: totalItems, rows: tipoclientes } = await TipoCliente.findAndCountAll({
             limit,
             offset
         });
 
         if (tipoclientes.length === 0) {
-            return res.status(404).json({ message: 'No hay ningún tipo cliente' });
+            return res.status(404).json({ message: 'No hay ningún tipo de cliente' });
         }
 
-        // Devolver directamente el array de tipoclientes
-        res.json(tipoclientes);
+        // Calcular el número total de páginas
+        const totalPages = Math.ceil(totalItems / limit);
+
+        // Estructurar la respuesta paginada
+        res.json({
+            totalItems,
+            totalPages,
+            currentPage: parseInt(page),
+            pageSize: limit,
+            tipoclientes
+        });
     } catch (error) {
         console.error('Error al obtener todos los tipos de clientes:', error);
         res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
 
 
 // Crear asaber un nuevo tipocliente
