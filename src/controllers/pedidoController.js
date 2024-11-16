@@ -35,7 +35,8 @@ export const PedidoGetAll = async (req, res) => {
     const offset = Math.max(0, (parseInt(page) - 1) * limit); // Saltar pedidos según la página
 
     try {
-        const { rows: pedidos } = await Pedido.findAndCountAll({
+        // Obtener los pedidos y el total de registros
+        const { count: totalItems, rows: pedidos } = await Pedido.findAndCountAll({
             include: [
                 { model: Cliente, as: 'cliente' },
                 { model: EstadoPedido, as: 'estado_pedido' }
@@ -48,13 +49,26 @@ export const PedidoGetAll = async (req, res) => {
             return res.status(404).json({ message: 'No hay ningún pedido' });
         }
 
-        // Devolver directamente el array de pedidos
-        res.json(pedidos);
+        // Calcular el número total de páginas
+        const totalPages = Math.ceil(totalItems / limit);
+
+        // Respuesta paginada
+        const paginatedResponse = {
+            totalItems,
+            totalPages,
+            currentPage: parseInt(page),
+            pageSize: limit,
+            pedidos
+        };
+
+        // Devolver la respuesta paginada
+        res.json(paginatedResponse);
     } catch (error) {
         console.error('Error al obtener todos los pedidos:', error);
         res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
 };
+
 
 // Crear pedido con PayPal
 // Crear pedido con PayPal
