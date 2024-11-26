@@ -58,17 +58,17 @@ export const getEstiloById = async (req, res) => {
 
 // Crear un nuevo estilo con sus tallas asociadas
 export const createEstilo = async (req, res) => {
-  const { nombre, tipo, tallas } = req.body;
+  const { nombre, tipo, precio,  tallas } = req.body;
 
   try {
     const result = await sequelize.transaction(async (t) => {
       // Validación de datos
-      if (!nombre || !tipo) {
-        throw new Error('Nombre y tipo son obligatorios.');
+      if (!nombre || !tipo || !precio) {
+        throw new Error('Nombre, tipo y precio son obligatorios.');
       }
 
       // Crear el Estilo (maestro)
-      const estilo = await Estilo.create({ nombre, tipo }, { transaction: t });
+      const estilo = await Estilo.create({ nombre, tipo, precio }, { transaction: t });
 
       // Verificar si hay tallas para asociar
       if (tallas && tallas.length > 0) {
@@ -117,7 +117,7 @@ export const createEstilo = async (req, res) => {
 // Actualizar un estilo y sus tallas asociadas
 export const updateEstilo = async (req, res) => {
   const { id } = req.params;
-  const { nombre, tipo, tallas } = req.body;
+  const { nombre, tipo, precio, tallas } = req.body;
 
   try {
     await sequelize.transaction(async (t) => {
@@ -135,6 +135,7 @@ export const updateEstilo = async (req, res) => {
       // Actualizar los datos del estilo (maestro)
       estilo.nombre = nombre;
       estilo.tipo = tipo;
+      estilo.precio = precio;
       await estilo.save({ transaction: t });
 
       // Actualizar los detalles de tallas (detalle)
