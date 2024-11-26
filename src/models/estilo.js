@@ -15,6 +15,10 @@ const Estilo = sequelize.define('Estilo', {
   tipo: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  precio: {
+    type: DataTypes.DECIMAL,
+    allowNull: false
   }
 }, {
   tableName: 'estilo',
